@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import { AuthProvider } from "./contexts/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
@@ -18,6 +18,12 @@ import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
 
 const queryClient = new QueryClient();
+
+const ConditionalFooter = () => {
+  const location = useLocation();
+  if (location.pathname === '/chatbot') return null;
+  return <Footer />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -40,7 +46,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
-          <Footer />
+          <ConditionalFooter />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
