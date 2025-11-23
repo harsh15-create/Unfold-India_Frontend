@@ -9,19 +9,19 @@ const Footer = () => {
     {
       name: 'LinkedIn',
       icon: Linkedin,
-      href: '#',
+      href: 'https://www.linkedin.com/in/harsh-kushwaha-00b701363',
       color: 'hover:text-blue-400'
     },
     {
       name: 'GitHub',
       icon: Github,
-      href: '#',
+      href: 'https://github.com/harsh15-create',
       color: 'hover:text-gray-300'
     },
     {
       name: 'Email',
       icon: Mail,
-      href: 'mailto:contact@xerces.com',
+      href: 'harshkushwahaabc25@gmail.com',
       color: 'hover:text-primary'
     }
   ];
@@ -39,8 +39,8 @@ const Footer = () => {
     {
       title: 'Support',
       links: [
-        { name: 'Help Center', href: '#' },
-        { name: 'Contact Us', href: '#' },
+        { name: 'Help Center', href: 'singhishu1@icloud.com' },
+        { name: 'Contact Us', href: 'harshkushwahaabc25@gmail.com' },
         { name: 'Privacy Policy', href: '#' },
         { name: 'Terms of Service', href: '#' }
       ]
@@ -74,7 +74,7 @@ const Footer = () => {
                 viewport={{ once: true }}
               >
                 <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Unfold India 🌏
+                  Unfold India
                 </h2>
                 <p className="text-muted-foreground mt-4 text-lg leading-relaxed max-w-md">
                   Discover the incredible diversity of India through personalized travel experiences, 
@@ -86,15 +86,15 @@ const Footer = () => {
               <div className="space-y-3">
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <MapPin className="w-5 h-5 text-primary" />
-                  <span>Mumbai, Maharashtra, India</span>
+                  <span>Greater Noida, UttarPradesh, India</span>
                 </div>
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <Phone className="w-5 h-5 text-primary" />
-                  <span>+91 98765 43210</span>
+                  <span>+91 96706 76930</span>
                 </div>
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <Mail className="w-5 h-5 text-primary" />
-                  <span>contact@xerces.com</span>
+                  <span>harshkushwahaabc25@gmail.com</span>
                 </div>
               </div>
 
