@@ -1,238 +1,126 @@
-import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { Languages, Volume2, Copy, RotateCcw } from 'lucide-react';
+import { motion } from "framer-motion";
+import { useState } from "react";
+import { Languages, Volume2 } from "lucide-react";
+
+// 🔥 Modern Translator UI — matching Safe Directions color theme
+// Uses bg-input, text-foreground, text-muted-foreground, border-border, glass styles
+// Smooth animations + clean layout
 
 const Translator = () => {
-  const [inputText, setInputText] = useState('');
-  const [outputText, setOutputText] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('hindi');
+  const [inputText, setInputText] = useState("");
+  const [outputText, setOutputText] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("hi");
   const [isTranslating, setIsTranslating] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const languages = [
-    { code: 'hindi', name: 'Hindi', native: 'हिन्दी' },
-    { code: 'tamil', name: 'Tamil', native: 'தமிழ்' },
-    { code: 'bengali', name: 'Bengali', native: 'বাংলা' },
-    { code: 'telugu', name: 'Telugu', native: 'తెలుగు' },
-    { code: 'marathi', name: 'Marathi', native: 'मराठी' },
-    { code: 'gujarati', name: 'Gujarati', native: 'ગુજરાતી' }
+    { code: "hi", name: "Hindi" },
+    { code: "ta", name: "Tamil" },
+    { code: "bn", name: "Bengali" },
+    { code: "te", name: "Telugu" },
+    { code: "mr", name: "Marathi" },
+    { code: "gu", name: "Gujarati" }
   ];
 
   const handleTranslate = async () => {
     if (!inputText.trim()) return;
-
     setIsTranslating(true);
-    
-    // Simulate translation
-    setTimeout(() => {
-      const translations = {
-        hindi: 'नमस्ते! आपका भारत में स्वागत है। यहाँ की संस्कृति और व्यंजन अद्भुत हैं।',
-        tamil: 'வணக்கம்! இந்தியாவிற்கு உங்களை வரவேற்கிறோம். இங்கே கலாச்சாரம் மற்றும் உணவு அற்புதமானது.',
-        bengali: 'নমস্কার! ভারতে আপনাকে স্বাগতম। এখানকার সংস্কৃতি এবং খাবার অসাধারণ।',
-        telugu: 'నమస్కారం! భారతదేశానికి మిమ్మల్ని స్వాగతం. ఇక్కడ సంస్కృతి మరియు వంటకాలు అద్భుతమైనవి.',
-        marathi: 'नमस्कार! भारतात तुमचे स्वागत आहे. इथली संस्कृती आणि पदार्थ उत्कृष्ट आहेत.',
-        gujarati: 'નમસ્તે! ભારતમાં તમારું સ્વાગત છે. અહીંની સંસ્કૃતિ અને ખોરાક અદ્ભુત છે.'
-      };
-      
-      setOutputText(translations[selectedLanguage] || 'Translation will appear here...');
-      setIsTranslating(false);
-    }, 1500);
+
+    try {
+      const res = await fetch("http://localhost:8000/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: inputText, target: selectedLanguage })
+      });
+
+      const data = await res.json();
+      setOutputText(data.translated || "Translation error");
+    } catch (err) {
+      setOutputText("Translation error");
+    }
+
+    setIsTranslating(false);
   };
 
-  const handlePlayAudio = () => {
+  const handlePlayAudio = async () => {
+    if (!outputText) return;
     setIsPlaying(true);
-    // Simulate audio playback
-    setTimeout(() => {
+
+    try {
+      const resp = await fetch("http://localhost:8000/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: outputText, voiceId: "en-US-ryan" })
+      });
+
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+
+      audio.onended = () => {
+        setIsPlaying(false);
+        URL.revokeObjectURL(url);
+      };
+
+      audio.play();
+    } catch (err) {
       setIsPlaying(false);
-    }, 2000);
-  };
-
-  const handleCopyText = () => {
-    navigator.clipboard.writeText(outputText);
-  };
-
-  const handleSwapLanguages = () => {
-    setInputText(outputText);
-    setOutputText(inputText);
+    }
   };
 
   return (
-    <div className="min-h-screen pt-20 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Language Translator
-            </span>
-          </h1>
-          <p className="text-xl text-muted-foreground">Break language barriers while exploring India</p>
+    <div className="min-h-screen pt-24 px-6 bg-background text-foreground flex flex-col items-center">
+      <div className="w-full max-w-4xl">
+
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Translator</h1>
+          <p className="text-muted-foreground mt-2">Instant, clean translations powered by AI</p>
         </motion.div>
 
-        {/* Language Selector */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="glass glass-hover p-6 rounded-2xl mb-8"
-        >
-          <div className="flex items-center space-x-3 mb-4">
-            <Languages className="w-6 h-6 text-primary" />
-            <h3 className="text-lg font-semibold text-foreground">Select Target Language</h3>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {languages.map((lang) => (
-              <motion.button
-                key={lang.code}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedLanguage(lang.code)}
-                className={`p-4 rounded-xl text-center transition-all ${
-                  selectedLanguage === lang.code
-                    ? 'backdrop-blur-[20px] bg-primary/25 border border-primary/30 text-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]'
-                    : 'backdrop-blur-[15px] bg-white/10 border border-white/20 text-muted-foreground hover:bg-white/20 hover:backdrop-blur-[20px] hover:text-foreground'
-                }`}
-              >
-                <div className="font-medium text-sm">{lang.name}</div>
-                <div className="text-xs opacity-80 mt-1">{lang.native}</div>
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass p-6 rounded-2xl shadow-xl border border-border">
+          <label className="text-sm text-muted-foreground">Enter text</label>
+          <textarea
+            className="w-full h-32 mt-2 bg-input border border-border p-4 rounded-lg focus:ring-2 focus:ring-primary outline-none"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="Type text here..."
+          />
 
-        {/* Translation Interface */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Input Panel */}
-          <motion.div
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="glass glass-hover rounded-2xl p-6"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">English</h3>
-              <div className="flex items-center space-x-2">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleSwapLanguages}
-                  className="p-2 rounded-lg backdrop-blur-[15px] bg-white/15 border border-white/20 hover:bg-white/25 hover:backdrop-blur-[20px] transition-all duration-300"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </motion.button>
-              </div>
-            </div>
-            
-            <textarea
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Enter text to translate..."
-              className="w-full h-48 p-4 bg-input border border-border rounded-xl text-foreground placeholder-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-            />
-            
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleTranslate}
-              disabled={isTranslating || !inputText.trim()}
-              className="w-full mt-4 backdrop-blur-[20px] bg-primary/25 border border-primary/30 hover:bg-primary/35 hover:backdrop-blur-[25px] p-3 rounded-xl text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all duration-300"
+          <div className="mt-4 flex items-center gap-4">
+            <select
+              className="bg-input border border-border p-3 rounded-lg"
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
             >
-              <span className="relative z-10 flex items-center justify-center space-x-2">
-                {isTranslating ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                    />
-                    <span>Translating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Languages className="w-5 h-5" />
-                    <span>Translate</span>
-                  </>
-                )}
-              </span>
-            </motion.button>
-          </motion.div>
+              {languages.map((l) => (
+                <option key={l.code} value={l.code}>{l.name}</option>
+              ))}
+            </select>
 
-          {/* Output Panel */}
-          <motion.div
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="glass glass-hover rounded-2xl p-6 relative overflow-hidden"
-          >
-            {outputText && (
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-secondary/20 to-transparent rounded-full blur-2xl" />
-            )}
-            
-            <div className="flex items-center justify-between mb-4 relative z-10">
-              <h3 className="text-lg font-semibold text-foreground">
-                {languages.find(l => l.code === selectedLanguage)?.name || 'Target Language'}
-              </h3>
-              <div className="flex items-center space-x-2">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleCopyText}
-                  disabled={!outputText}
-                  className="p-2 rounded-lg backdrop-blur-[15px] bg-white/15 border border-white/20 hover:bg-white/25 hover:backdrop-blur-[20px] transition-all duration-300 disabled:opacity-50"
-                >
-                  <Copy className="w-4 h-4" />
-                </motion.button>
-              </div>
-            </div>
-            
-            <div className="w-full h-48 p-4 bg-input border border-border rounded-xl text-foreground relative z-10 overflow-y-auto">
-              {outputText || (
-                <span className="text-muted-foreground">Translation will appear here...</span>
-              )}
-            </div>
-            
-            {outputText && (
-              <motion.button
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handlePlayAudio}
-                disabled={isPlaying}
-                className="w-full mt-4 backdrop-blur-[20px] bg-secondary/25 border border-secondary/30 hover:bg-secondary/35 hover:backdrop-blur-[25px] p-3 rounded-xl text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] transition-all duration-300 z-10"
-              >
-                <span className="relative z-10 flex items-center justify-center space-x-2">
-                  {isPlaying ? (
-                    <>
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 0.5, repeat: Infinity }}
-                        className="flex space-x-1"
-                      >
-                        <div className="w-1 h-4 bg-white rounded-full" />
-                        <div className="w-1 h-6 bg-white rounded-full" />
-                        <div className="w-1 h-4 bg-white rounded-full" />
-                        <div className="w-1 h-6 bg-white rounded-full" />
-                        <div className="w-1 h-4 bg-white rounded-full" />
-                      </motion.div>
-                      <span>Playing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-5 h-5" />
-                      <span>Play Audio</span>
-                    </>
-                  )}
-                </span>
-              </motion.button>
-            )}
-          </motion.div>
-        </div>
+            <button
+              className="px-6 py-3 rounded-xl bg-primary text-white shadow hover:opacity-90"
+              onClick={handleTranslate}
+            >
+              {isTranslating ? "Translating..." : "Translate"}
+            </button>
+          </div>
+
+          <div className="mt-6 p-4 bg-input rounded-lg border border-border min-h-[90px]">
+            <label className="text-sm text-muted-foreground">Translation</label>
+            <p className="mt-2 text-lg">{outputText || "..."}</p>
+          </div>
+
+          {outputText && (
+            <button
+              className="mt-4 px-5 py-3 bg-secondary text-white rounded-xl flex items-center gap-2 hover:opacity-90"
+              onClick={handlePlayAudio}
+            >
+              <Volume2 size={20} />
+              {isPlaying ? "Playing..." : "Play Audio"}
+            </button>
+          )}
+        </motion.div>
+
       </div>
     </div>
   );
