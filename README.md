@@ -1,73 +1,112 @@
-# Welcome to your Lovable project
+🌏 Unfold India – AI Voyage
 
-## Project info
+Your AI-powered travel buddy for budget-friendly trips across India.
+Generate detailed itineraries, translate local languages, and even get voice assistance — all in one place.
 
-**URL**: https://lovable.dev/projects/46cbf1c7-702c-456e-8ffe-509cb7932591
+🚀 Features
 
-## How can I edit this code?
+✔ AI-generated travel itineraries across India
+✔ Budget-friendly recommendations
+✔ Day-wise breakdowns (food, stay, transport, hidden gems)
+✔ Translation tool – Hindi, Tamil, Marathi, Bengali, Telugu, Gujarati
+✔ Text-to-speech – Hear the itinerary in real voice
+✔ Fast & responsive frontend UI
+✔ Fully integrated with a deployed FastAPI backend
 
-There are several ways of editing your application.
+🧠 Tech Stack
+⚛ Frontend
 
-**Use Lovable**
+React / Vite (Lovable AI-generated base)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/46cbf1c7-702c-456e-8ffe-509cb7932591) and start prompting.
+TailwindCSS
 
-Changes made via Lovable will be committed automatically to this repo.
+State Management (if used)
 
-**Use your preferred IDE**
+🐍 Backend (Deployed Separately)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+FastAPI
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Groq API (for AI responses & TTS)
 
-Follow these steps:
+Python-dotenv
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+🔗 Live Demo
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+👉 Frontend:
+https://unfold-india-ai-voyage.lovable.app/
 
-# Step 3: Install the necessary dependencies.
-npm i
+👉 Backend:
+https://unfold-india-backend.onrender.com/docs
+ (Swagger API)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+💻 Run Frontend Locally
+1️⃣ Clone Repo
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+cd YOUR_REPO_NAME
+
+2️⃣ Install Dependencies
+npm install
+
+3️⃣ Create .env File
+VITE_API_URL=https://unfold-india-backend.onrender.com
+
+4️⃣ Run the App
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+📡 API Endpoints Used (Frontend → Backend)
+Feature	Endpoint
+Chat / Itinerary	/chat
+Translation	/api/translate
+Text-to-Speech	/api/tts
+📂 Project Structure
+frontend/
+│── public/
+│── src/
+│   ├── components/
+│   ├── pages/
+│   ├── utils/
+│   └── App.jsx
+│── .env
+│── package.json
+│── README.md  ← YOU ARE HERE
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+🚀 Deployment
+Frontend	Backend
+Lovable.app (Vercel-like hosting)	Render (FastAPI)
 
-**Use GitHub Codespaces**
+If you want full control, move frontend to Vercel or deploy via Netlify.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+📌 Future Improvements
 
-## What technologies are used for this project?
+Save itineraries to database
 
-This project is built with:
+User authentication (login/signup)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Custom domain (unfoldindia.in)
 
-## How can I deploy this project?
+Add payment + premium features
 
-Simply open [Lovable](https://lovable.dev/projects/46cbf1c7-702c-456e-8ffe-509cb7932591) and click on Share -> Publish.
+AI-generated travel reel maker 🎥
 
-## Can I connect a custom domain to my Lovable project?
+Real-time train/bus/flight pricing
 
-Yes, you can!
+🤝 Contribute
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Pull requests are welcome! Open an issue first to discuss any major changes.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+🙌 Acknowledgements
+
+Groq API
+
+FastAPI
+
+Lovable AI
+
+TailwindCSS
+
+All early testers ❤️
+
+⭐ Support
+
+If this project helped you — star the repo ⭐
+It motivates further development!
