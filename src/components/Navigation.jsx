@@ -62,7 +62,7 @@ const Navigation = () => {
               whileTap={{ scale: 0.95 }}
               className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent whitespace-nowrap"
             >
-              Unfold India 🌏
+              Unfold India
             </motion.div>
           </Link>
         </div>
