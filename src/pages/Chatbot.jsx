@@ -3,6 +3,13 @@ import { useState } from 'react';
 import { Send, Bot, User, Loader } from 'lucide-react';
 import { saveChat } from '@/lib/supabaseChat';
 
+const formatAIResponse = (text) => {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+    .replace(/\n/g, "<br />")
+    .replace(/(\d+\.)/g, "<br><b>$1</b>");
+};
+
 const Chatbot = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([
@@ -14,6 +21,9 @@ const Chatbot = () => {
     }
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const [showItineraryModal, setShowItineraryModal] = useState(false);
+  const [mode, setMode] = useState("traveler");
+  const [itineraryLocation, setItineraryLocation] = useState("");
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -30,41 +40,41 @@ const Chatbot = () => {
     setMessage('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(async () => {
-      const aiResponseText = generateAIResponse(message);
+    try {
+      const response = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      const data = await response.json();
       const aiResponse = {
         id: Date.now() + 1,
-        text: aiResponseText,
+        text: formatAIResponse(data.reply),
         sender: 'ai',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiResponse]);
+      await saveChat(newMessage.text, data.reply);
+    } catch (error) {
+      const aiResponse = {
+        id: Date.now() + 1,
+        text: "Sorry, server error.",
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiResponse]);
+    } finally {
       setIsTyping(false);
-      
-      // Save chat to database
-      await saveChat(newMessage.text, aiResponseText);
-    }, 2000);
+    }
   };
 
-  const generateAIResponse = (userMessage) => {
-    const responses = [
-      "That's a great question about traveling in India! Based on your query, I'd recommend exploring the cultural heritage sites and trying the local cuisine.",
-      "India offers incredible diversity in destinations. Would you like me to suggest some routes based on your interests?",
-      "For safety while traveling, I always recommend staying connected with local guides and keeping emergency contacts handy.",
-      "The best time to visit varies by region. Northern India is great in winter, while the south is pleasant year-round.",
-      "I can help you with language translations, local customs, and finding the best authentic experiences!"
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
-  };
-
-  return (
-    <div className="min-h-screen flex flex-col pt-20">
+return (
+    <div className="min-h-screen flex flex-col overflow-hidden">
       {/* Header */}
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="glass glass-hover p-6 m-4 rounded-2xl text-center"
+        className="glass glass-hover p-3 m-2 rounded-xl text-center fixed top-28 left-0 right-0 mx-auto z-50"
       >
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           AI Travel Companion
@@ -73,7 +83,7 @@ const Chatbot = () => {
       </motion.div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
+      <div className="overflow-y-auto px-4 pt-4 pb-32 mt-40 mb-0 h-[calc(100vh-200px)] pointer-events-none">
         <div className="max-w-4xl mx-auto space-y-4">
           {messages.map((msg, index) => (
             <motion.div
@@ -88,7 +98,7 @@ const Chatbot = () => {
               whileHover={{ scale: 1.02 }}
               className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div className={`flex items-start space-x-3 max-w-xl ${msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+              <div className={`flex items-start space-x-3 max-w-xl pointer-events-auto ${msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
                 {/* Avatar */}
                 <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                   msg.sender === 'ai' 
@@ -113,7 +123,12 @@ const Chatbot = () => {
                       : 'bg-gradient-to-br from-primary/30 to-accent/20 border-primary/30'
                   } transition-all duration-500 ease-out hover:border-opacity-60`}
                 >
-                  <p className="text-foreground leading-relaxed">{msg.text}</p>
+                  <div>
+                    <p
+                      className="text-foreground leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: msg.text }}
+                    />
+                  </div>
                   <span className="text-xs text-muted-foreground mt-3 block opacity-70 hover:opacity-100 transition-opacity">
                     {msg.timestamp.toLocaleTimeString()}
                   </span>
@@ -195,14 +210,20 @@ const Chatbot = () => {
         </div>
       </div>
 
+      <button
+        onClick={() => setShowItineraryModal(true)}
+        className="px-6 py-3 bg-primary/25 border border-primary/30 backdrop-blur-[20px] hover:bg-primary/35 hover:backdrop-blur-[25px] rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] fixed bottom-7 right-12 transition-all duration-300 z-50 pointer-events-auto"
+      >
+        Instant Itinerary
+      </button>
       {/* Input Form */}
       <motion.div
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="p-4"
+        className="p-2 fixed bottom-0 left-0 right-0 z-40"
       >
         <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto">
-          <div className="backdrop-blur-[20px] bg-white/20 border border-white/30 p-4 rounded-2xl flex items-center space-x-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:backdrop-blur-[25px] hover:bg-white/25 transition-all duration-300">
+          <div className="backdrop-blur-[20px] bg-white/15 border border-white/25 p-4 rounded-2xl flex items-center space-x-4 shadow-lg transition-all duration-300">
             <input
               type="text"
               value={message}
@@ -238,6 +259,77 @@ const Chatbot = () => {
           </div>
         </form>
       </motion.div>
+      {showItineraryModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="glass glass-hover backdrop-blur-xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 p-6 rounded-2xl w-96 shadow-2xl transition-all duration-300">
+            <h2 className="text-xl font-bold mb-4">Generate Itinerary</h2>
+            <p className="text-sm mb-2">Select Mode:</p>
+            <div className="flex gap-4 mb-4">
+              <label className="flex items-center gap-2">
+                <input type="radio" checked={mode === "traveler"} onChange={() => setMode("traveler")} /> Traveler Mode (3-4 Days)
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="radio" checked={mode === "normal"} onChange={() => setMode("normal")} /> Normal Mode (1-Day)
+              </label>
+            </div>
+            <input
+              type="text"
+              placeholder="Enter destination"
+              value={itineraryLocation}
+              onChange={(e) => setItineraryLocation(e.target.value)}
+              className="w-full mb-4 px-4 py-2 bg-input border border-border rounded-xl"
+            />
+            <div className="flex justify-between">
+              <button
+                onClick={() => setShowItineraryModal(false)}
+                className="px-4 py-2 bg-red-500/20 text-foreground rounded-xl transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  const itineraryText =
+                    mode === "traveler"
+                      ? `Generate a 3-4 day detailed itinerary for ${itineraryLocation}. Include budget, food, stay, travel modes, safety tips, and make it engaging.`
+                      : `Generate a 1-day quick sightseeing itinerary for ${itineraryLocation}. Focus only on main attractions.`;
+
+                  // Show typing indicator
+                  setIsTyping(true);
+                  setShowItineraryModal(false);
+
+                  try {
+                    const response = await fetch("http://localhost:8000/chat", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ message: itineraryText })
+                    });
+                    const data = await response.json();
+                    const aiResponse = {
+                      id: Date.now(),
+                      text: formatAIResponse(data.reply),
+                      sender: 'ai',
+                      timestamp: new Date()
+                    };
+                    setMessages(prev => [...prev, aiResponse]);
+                  } catch (error) {
+                    setMessages(prev => [...prev, {
+                      id: Date.now(),
+                      text: "Server error while generating itinerary.",
+                      sender: 'ai',
+                      timestamp: new Date()
+                    }]);
+                  } finally {
+                    setIsTyping(false);
+                  }
+                }}
+                className="px-4 py-2 bg-primary/20 hover:bg-primary/30 text-foreground rounded-xl transition-all"
+              >
+                Generate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
