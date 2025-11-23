@@ -27,7 +27,7 @@ const Translator = () => {
     setIsTranslating(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/translate", {
+      const res = await fetch("https://unfold-india-backend.onrender.com/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: inputText, target: selectedLanguage })
@@ -47,7 +47,7 @@ const Translator = () => {
     setIsPlaying(true);
 
     try {
-      const resp = await fetch("http://localhost:8000/api/tts", {
+      const resp = await fetch("https://unfold-india-backend.onrender.com/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: outputText, voiceId: "en-US-ryan" })
